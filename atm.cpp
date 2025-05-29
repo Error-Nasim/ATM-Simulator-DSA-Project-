@@ -1,4 +1,3 @@
-// YOU CAN FIND THE TRUTH IN MY CODE *-*
 #include <bits/stdc++.h>
 #include <thread>
 #include <chrono>
@@ -11,6 +10,7 @@ void clearScreen()
     system("cls");
 #else
     system("clear");
+
 #endif
 }
 
@@ -317,49 +317,6 @@ bool saveLoans()
     return true;
 }
 
-// // Function to get transaction history for an account
-// vector<string> getTransactionHistory(int accountNumber)
-// {
-//     vector<string> transactions;
-//     string filename = "transactions_" + to_string(accountNumber) + ".txt";
-
-//     ifstream file(filename);
-//     if (!file.is_open())
-//     {
-//         return transactions; // Return empty vector if file doesn't exist
-//     }
-
-//     string line;
-//     while (getline(file, line))
-//     {
-//         if (!line.empty())
-//         {
-//             transactions.push_back(line);
-//         }
-//     }
-
-//     file.close();
-//     return transactions;
-// }
-
-// // Function to save a transaction to file
-// bool saveTransaction(int accountNumber, const Transaction &transaction)
-// {
-//     string filename = "transactions_" + to_string(accountNumber) + ".txt";
-
-//     // Open in append mode
-//     ofstream file(filename, ios::app);
-
-//     if (!file.is_open())
-//     {
-//         cerr << "Error opening transaction file: " << filename << endl;
-//         return false;
-//     }
-
-//     file << transaction.toString() << endl;
-//     file.close();
-//     return true;
-// }
 // Function to sanitize filename (remove invalid characters)
 string sanitizeFilename(const string &filename)
 {
@@ -611,12 +568,11 @@ bool withdraw(int accountNumber, double amount)
         cout << "❌ ERROR: Account not found." << endl;
         return false;
     }
-
-    // Check if user has sufficient balance
-    if (it->second.balance < amount)
+    if (it->second.balance <= amount + 500)
     {
         cout << "❌ TRANSACTION FAILED!" << endl;
         cout << "🚫 Not enough balance!" << endl;
+        cout << "Minimum Required Balence 500$" << endl;
         cout << "💳 Your current balance: $" << fixed << setprecision(2) << it->second.balance << endl;
         cout << "💸 Requested amount: $" << fixed << setprecision(2) << amount << endl;
         return false;
@@ -685,10 +641,11 @@ bool transfer(int senderAccount, int receiverAccount, double amount)
     }
 
     // Check if sender has sufficient balance
-    if (senderIt->second.balance < amount)
+    if (senderIt->second.balance < amount + 500)
     {
         cout << "❌ TRANSFER FAILED!" << endl;
         cout << "🚫 Not enough balance!" << endl;
+        cout << "Minimum Required Balence 500$" << endl;
         cout << "💳 Your current balance: $" << fixed << setprecision(2) << senderIt->second.balance << endl;
         cout << "💸 Transfer amount: $" << fixed << setprecision(2) << amount << endl;
         return false;
@@ -956,10 +913,11 @@ bool makeLoanPayment(int accountNumber, int loanId)
     }
 
     // Check if user has enough balance to make the payment
-    if (userIt->second.balance < loan.monthlyPayment)
+    if (userIt->second.balance < loan.monthlyPayment + 500)
     {
         cout << "❌ LOAN PAYMENT FAILED!" << endl;
         cout << "🚫 Not enough balance!" << endl;
+        cout << "Minimum Required Balence 500$" << endl;
         cout << "💳 Your current balance: $" << fixed << setprecision(2) << userIt->second.balance << endl;
         cout << "💸 Required payment: $" << fixed << setprecision(2) << loan.monthlyPayment << endl;
         return false;
