@@ -399,7 +399,7 @@ stack<string> getRecentTransactions(int accountNumber, int count)
     int start = static_cast<int>(allTransactions.size()) - 1;
     int end = max(0, start - count + 1);
 
-    for (int i = start; i >= end; i--)
+    for (int i = end; i <= start; i++)
     {
         recentTransactions.push(allTransactions[i]);
     }
@@ -1335,13 +1335,54 @@ void adminSession()
         {
             clearScreen();
             cout << "=======================================" << endl;
+            cout << "||         ALL ACCOUNTS              ||" << endl;
+            cout << "=======================================" << endl;
+
+            if (users.empty())
+            {
+                cout << "No accounts found." << endl;
+                cout << "=======================================" << endl;
+                cout << "Press Enter to continue...";
+                cin.ignore();
+                cin.get();
+                break;
+            }
+            else
+            {
+                cout << left << setw(10) << "Acc No" << setw(20) << "Name"
+                     << setw(15) << "Balance" << endl;
+                cout << "-------------------------------------------" << endl;
+
+                for (const auto &pair : users)
+                {
+                    const User &user = pair.second;
+                    cout << left << setw(10) << user.accountNumber
+                         << setw(20) << user.name
+                         << "$" << fixed << setprecision(2) << user.balance << endl;
+                }
+            }
+            cout << "=======================================" << endl;
             cout << "||        DELETE ACCOUNT             ||" << endl;
             cout << "=======================================" << endl;
 
             int accountNumber;
-            cout << "Enter account number to delete: ";
-            cin >> accountNumber;
 
+            string accInput;
+            while (true)
+            {
+                cout << "Enter account number to delete: ";
+                cin >> accInput;
+
+                if (all_of(accInput.begin(), accInput.end(), ::isdigit))
+                {
+                    accountNumber = stoi(accInput); // Safe conversion after validation
+                    break;                          // Valid input, break the loop
+                }
+                else
+                {
+                    cout << "❌ ERROR: Loan Id must be a number." << endl;
+                }
+            }
             auto it = users.find(accountNumber);
             if (it == users.end())
             {
@@ -1460,13 +1501,58 @@ void adminSession()
         {
             clearScreen();
             cout << "=======================================" << endl;
+            cout << "||        PENDING LOANS              ||" << endl;
+            cout << "=======================================" << endl;
+
+            bool hasPendingLoans = false;
+
+            for (const auto &pair : loans)
+            {
+                const Loan &loan = pair.second;
+                if (!loan.approved)
+                {
+                    hasPendingLoans = true;
+                    cout << "Loan ID: " << loan.loanId << endl;
+                    cout << "Account: " << loan.accountNumber << endl;
+                    cout << "Amount: $" << fixed << setprecision(2) << loan.amount << endl;
+                    cout << "Term: " << loan.termMonths << " months" << endl;
+                    cout << "Monthly Payment: $" << fixed << setprecision(2) << loan.monthlyPayment << endl;
+                    cout << "Application Date: " << loan.applicationDate << endl;
+                    cout << "-----------------------------------" << endl;
+                }
+            }
+
+            if (!hasPendingLoans)
+            {
+                cout << "No pending loans found." << endl;
+                cout << "Press Enter to continue...";
+                cin.ignore();
+                cin.get();
+                break;
+            }
+
+            cout << "=======================================" << endl;
             cout << "||         APPROVE LOAN              ||" << endl;
             cout << "=======================================" << endl;
 
             int loanId;
-            cout << "Enter loan ID to approve: ";
-            cin >> loanId;
 
+            string accInput;
+            while (true)
+            {
+                cout << "Enter loan ID to approve: ";
+                cin >> accInput;
+
+                if (all_of(accInput.begin(), accInput.end(), ::isdigit))
+                {
+                    loanId = stoi(accInput); // Safe conversion after validation
+                    break;                   // Valid input, break the loop
+                }
+                else
+                {
+                    cout << "❌ ERROR: Loan Id must be a number." << endl;
+                }
+            }
             showLoadingEffect("Processing loan approval");
             approveLoan(loanId);
 
@@ -1592,14 +1678,42 @@ int main()
 
             int accountNumber;
             string pin;
+            string accInput;
 
-            cout << "Enter Account Number: ";
-            cin >> accountNumber;
-            cout << "Enter PIN: ";
+            // Loop until a valid 4-digit numeric account number is entered
+            while (true)
+            {
+                cout << "Enter Account Number (4-digit): ";
+                cin >> accInput;
+
+                if (all_of(accInput.begin(), accInput.end(), ::isdigit))
+                {
+                    accountNumber = stoi(accInput); // Safe conversion after validation
+                    break;                          // Valid input, break the loop
+                }
+                else
+                {
+                    cout << "❌ ERROR: Account number must be a number." << endl;
+                }
+            }
+
+            // Now take PIN input
+            cout << "Enter PIN (4-digit): ";
             cin >> pin;
 
             showLoadingEffect("Authenticating");
 
+            // Validate PIN format
+            if (pin.length() != 4 || !all_of(pin.begin(), pin.end(), ::isdigit))
+            {
+                cout << "❌ ERROR: PIN must be a 4-digit number." << endl;
+                cout << "Press Enter to continue...";
+                cin.ignore();
+                cin.get();
+                break;
+            }
+
+            // Authenticate user
             if (authenticateUser(accountNumber, pin))
             {
                 cout << "✅ Login successful!" << endl;
@@ -1613,6 +1727,7 @@ int main()
                 cin.ignore();
                 cin.get();
             }
+
             break;
         }
 
